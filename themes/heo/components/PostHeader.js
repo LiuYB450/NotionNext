@@ -9,20 +9,51 @@ import WavesArea from './WavesArea'
 
 /**
  * 文章页头
- * @param {*} param0
- * @returns
+ * 改造目标：
+ * 1. 保留 heo 原有波浪效果
+ * 2. 顶部主色与整站“灰蓝 + 暖白”主题一致
+ * 3. 降低原主题亮蓝/亮黄带来的突兀感
+ * 4. 保留封面模糊氛围，但避免“脏”和“糊”
  */
 export default function PostHeader({ post, siteInfo, isDarkMode }) {
   if (!post) {
     return <></>
   }
-  // 文章头图
+
   const headerImage = post?.pageCover ? post.pageCover : siteInfo?.pageCover
   const ANALYTICS_BUSUANZI_ENABLE = siteConfig('ANALYTICS_BUSUANZI_ENABLE')
+
+  const palette = isDarkMode
+    ? {
+        bg1: '#23282f',
+        bg2: '#2d343d',
+        bg3: '#3a424c',
+        inset: 'rgba(28, 32, 37, 0.82)',
+        badgeBg: 'rgba(255, 255, 255, 0.14)',
+        badgeHoverBg: 'rgba(255, 255, 255, 0.92)',
+        badgeHoverText: '#15181c',
+        tagText: 'rgba(255,255,255,0.90)',
+        tagHover: '#ffffff'
+      }
+    : {
+        bg1: '#5f6f7a',
+        bg2: '#70808b',
+        bg3: '#8c98a1',
+        inset: 'rgba(95, 111, 122, 0.74)',
+        badgeBg: 'rgba(255, 255, 255, 0.16)',
+        badgeHoverBg: 'rgba(255, 255, 255, 0.94)',
+        badgeHoverText: '#26221d',
+        tagText: 'rgba(255,255,255,0.90)',
+        tagHover: '#ffffff'
+      }
+
+  const headerBg = `linear-gradient(135deg, ${palette.bg1} 0%, ${palette.bg2} 58%, ${palette.bg3} 100%)`
+
   return (
     <div
       id='post-bg'
-      className='md:mb-0 -mb-5 w-full h-[30rem] relative md:flex-shrink-0 overflow-hidden bg-cover bg-center bg-no-repeat z-10'>
+      className='md:mb-0 -mb-5 w-full h-[30rem] relative md:flex-shrink-0 overflow-hidden bg-cover bg-center bg-no-repeat z-10'
+    >
       <style jsx>{`
         .coverdiv:after {
           position: absolute;
@@ -31,20 +62,44 @@ export default function PostHeader({ post, siteInfo, isDarkMode }) {
           height: 100%;
           top: 0;
           left: 0;
-          box-shadow: 110px -130px 500px 100px
-            ${isDarkMode ? '#CA8A04' : '#0060e0'} inset;
+          box-shadow: 110px -130px 460px 110px ${palette.inset} inset;
+        }
+
+        .post-header-badge {
+          background: ${palette.badgeBg};
+          color: #ffffff;
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          transition: all 0.2s ease;
+        }
+
+        .post-header-badge:hover {
+          background: ${palette.badgeHoverBg};
+          color: ${palette.badgeHoverText};
+        }
+
+        .post-header-tag {
+          color: ${palette.tagText};
+          transition: color 0.2s ease;
+        }
+
+        .post-header-tag:hover {
+          color: ${palette.tagHover};
         }
       `}</style>
 
       <div
-        className={`${isDarkMode ? 'bg-[#CA8A04]' : 'bg-[#0060e0]'} absolute top-0 w-full h-full py-10 flex justify-center items-center`}>
-        {/* 文章背景图 */}
+        className='absolute top-0 w-full h-full py-10 flex justify-center items-center'
+        style={{ background: headerBg }}
+      >
+        {/* 背景封面模糊层 */}
         <div
           id='post-cover-wrapper'
           style={{
-            filter: 'blur(15px)'
+            filter: 'blur(14px)'
           }}
-          className='coverdiv lg:opacity-50 lg:translate-x-96 lg:rotate-12'>
+          className='coverdiv lg:opacity-40 lg:translate-x-96 lg:rotate-12'
+        >
           <LazyImage
             id='post-cover'
             className='w-full h-full object-cover max-h-[50rem] min-w-[50vw] min-h-[20rem]'
@@ -55,21 +110,21 @@ export default function PostHeader({ post, siteInfo, isDarkMode }) {
         {/* 文章文字描述 */}
         <div
           id='post-info'
-          className='absolute top-48 z-10 flex flex-col space-y-4 lg:-mt-12 w-full max-w-[86rem] px-5'>
-          {/* 分类+标签 */}
+          className='absolute top-48 z-10 flex flex-col space-y-4 lg:-mt-12 w-full max-w-[86rem] px-5'
+        >
+          {/* 分类 + 标签 */}
           <div className='flex justify-center md:justify-start items-center gap-4'>
             {post.category && (
-              <>
-                <SmartLink
-                  href={`/category/${post.category}`}
-                  className='mr-4'
-                  passHref
-                  legacyBehavior>
-                  <div className='cursor-pointer font-sm font-bold px-3 py-1 rounded-lg  hover:bg-white text-white bg-blue-500 dark:bg-yellow-500 hover:text-blue-500 duration-200 '>
-                    {post.category}
-                  </div>
-                </SmartLink>
-              </>
+              <SmartLink
+                href={`/category/${post.category}`}
+                className='mr-4'
+                passHref
+                legacyBehavior
+              >
+                <div className='post-header-badge cursor-pointer font-sm font-bold px-3 py-1 rounded-lg'>
+                  {post.category}
+                </div>
+              </SmartLink>
             )}
 
             {post.tagItems && (
@@ -79,12 +134,11 @@ export default function PostHeader({ post, siteInfo, isDarkMode }) {
                     key={index}
                     href={`/tag/${encodeURIComponent(tag.name)}`}
                     passHref
-                    className={
-                      'cursor-pointer inline-block text-gray-50 hover:text-white duration-200 py-0.5 px-1 whitespace-nowrap '
-                    }>
+                    className='post-header-tag cursor-pointer inline-block duration-200 py-0.5 px-1 whitespace-nowrap'
+                  >
                     <div className='font-light flex items-center'>
-                      <HashTag className='text-gray-200 stroke-2 mr-0.5 w-3 h-3' />{' '}
-                      {tag.name + (tag.count ? `(${tag.count})` : '')}{' '}
+                      <HashTag className='text-gray-200 stroke-2 mr-0.5 w-3 h-3' />
+                      {tag.name + (tag.count ? `(${tag.count})` : '')}
                     </div>
                   </SmartLink>
                 ))}
@@ -92,42 +146,34 @@ export default function PostHeader({ post, siteInfo, isDarkMode }) {
             )}
           </div>
 
-          {/* 文章Title */}
-          <div className='max-w-5xl font-bold text-3xl lg:text-5xl md:leading-snug shadow-text-md flex  justify-center md:justify-start text-white'>
-            {siteConfig('POST_TITLE_ICON') && (
-              <NotionIcon icon={post.pageIcon} />
-            )}
+          {/* 标题 */}
+          <div className='max-w-5xl font-bold text-3xl lg:text-5xl md:leading-snug shadow-text-md flex justify-center md:justify-start text-white'>
+            {siteConfig('POST_TITLE_ICON') && <NotionIcon icon={post.pageIcon} />}
             {post.title}
           </div>
 
-          {/* 标题底部补充信息 */}
-          <section className='flex-wrap dark:text-gray-200 text-opacity-70 shadow-text-md flex text-sm  justify-center md:justify-start mt-4 text-white font-light leading-8'>
-            <div className='flex justify-center '>
+          {/* 底部信息 */}
+          <section className='flex-wrap dark:text-gray-200 text-opacity-70 shadow-text-md flex text-sm justify-center md:justify-start mt-4 text-white font-light leading-8'>
+            <div className='flex justify-center'>
               <div className='mr-2'>
-                <WordCount
-                  wordCount={post.wordCount}
-                  readTime={post.readTime}
-                />
+                <WordCount wordCount={post.wordCount} readTime={post.readTime} />
               </div>
+
               {post?.type !== 'Page' && (
-                <>
-                  <SmartLink
-                    href={`/archive#${formatDateFmt(post?.publishDate, 'yyyy-MM')}`}
-                    passHref
-                    className='pl-1 mr-2 cursor-pointer hover:underline'>
-                    <i className='fa-regular fa-calendar'></i>{' '}
-                    {post?.publishDay}
-                  </SmartLink>
-                </>
+                <SmartLink
+                  href={`/archive#${formatDateFmt(post?.publishDate, 'yyyy-MM')}`}
+                  passHref
+                  className='pl-1 mr-2 cursor-pointer hover:underline'
+                >
+                  <i className='fa-regular fa-calendar'></i> {post?.publishDay}
+                </SmartLink>
               )}
 
               <div className='pl-1 mr-2'>
-                <i className='fa-regular fa-calendar-check'></i>{' '}
-                {post.lastEditedDay}
+                <i className='fa-regular fa-calendar-check'></i> {post.lastEditedDay}
               </div>
             </div>
 
-            {/* 阅读统计 */}
             {ANALYTICS_BUSUANZI_ENABLE && (
               <div className='busuanzi_container_page_pv font-light mr-2'>
                 <i className='fa-solid fa-fire-flame-curved'></i>{' '}
@@ -137,6 +183,7 @@ export default function PostHeader({ post, siteInfo, isDarkMode }) {
           </section>
         </div>
 
+        {/* 保留波浪 */}
         <WavesArea />
       </div>
     </div>
