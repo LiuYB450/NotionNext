@@ -5,7 +5,7 @@ import CONFIG from '../config'
 
 /**
  * 交流频道卡片
- * 目标：与上方 InfoCard 使用完全一致的底色体系
+ * 目标：与上方 InfoCard 完全复用同一套底色覆盖规则
  */
 export default function TouchMeCard() {
   if (!JSON.parse(siteConfig('HEO_SOCIAL_CARD', null, CONFIG))) {
@@ -43,7 +43,7 @@ export default function TouchMeCard() {
 
       <div className='relative h-28 text-white flex flex-col'>
         <FlipCard
-          className='cursor-pointer lg:p-6 p-4 border rounded-xl bg-[#4f65f0] dark:bg-yellow-600 text-white overflow-hidden relative dark:border-gray-600'
+          className='card cursor-pointer lg:p-6 p-4 border rounded-xl bg-[#4f65f0] dark:bg-yellow-600 text-white overflow-hidden relative dark:border-gray-600'
           frontContent={
             <div className='touch-card-front'>
               <h2 className='font-[1000] text-3xl'>
