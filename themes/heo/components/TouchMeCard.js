@@ -20,7 +20,7 @@ export default function TouchMeCard() {
           inset: 0;
           background: url(https://bu.dusays.com/2023/05/16/64633c4cd36a9.png)
             center center / cover no-repeat;
-          opacity: 0.14;
+          opacity: 0.12;
           pointer-events: none;
         }
 
@@ -43,7 +43,7 @@ export default function TouchMeCard() {
 
       <div className='relative h-28 text-white flex flex-col'>
         <FlipCard
-          className='cursor-pointer lg:p-6 p-4 border rounded-xl bg-[#4f65f0] dark:bg-yellow-600 dark:border-gray-600 overflow-hidden relative text-white'
+          className='cursor-pointer lg:p-6 p-4 border rounded-xl bg-[#4f65f0] dark:bg-yellow-600 text-white overflow-hidden relative dark:border-gray-600'
           frontContent={
             <div className='touch-card-front'>
               <h2 className='font-[1000] text-3xl'>
